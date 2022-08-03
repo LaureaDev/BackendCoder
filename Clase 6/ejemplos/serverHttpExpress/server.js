@@ -1,26 +1,20 @@
 const express = require('express');
 const app = express();
+const port = 8080;
 
-app.get('/HolaMundo', (req, res) => {
-    res.send({mensaje: 'Hola Mundo'});
-    });
-    app.get("/", (req, res) => {
-        res.send('<h1 style="color:blue">Bienvenidos al servidor express</h1>');
-      });
-      
-      let contador = 0;
-      app.get("/visitas", (req, res) => {
-        res.send(`La cantidad de visitas es ${contador++}`);
-      });
+const products = [
+    {id: 1, name: 'Product 1', stock:10, price: 100},
+    {id: 2, name: 'Product 2', stock:20, price: 200},
+    {id: 3, name: 'Product 3', stock:30, price: 300},
+    {id: 4, name: 'Product 4', stock:40, price: 400},
+    {id: 5, name: 'Product 5', stock:50 ,price: 500},
+];
 
-      const date = new Date();
-      app.get("/fyh", (req, res) => {
-        res.send({ fyh: date.toLocaleString() });
-      });
-      
-      
-const server = app.listen(8080, () => {
-    console.log(`Servidor http escuchando en el puerto ${server.address().port}`);
-})
 
-server.on('error', error => console.log(`Erropr en el server: ${error}`));
+app.get ('/', (req, res) => {
+    res.send(products);
+});
+
+app.listen(port, () => {
+    console.log(`Example app listening at http://localhost:${port}`);
+});
