@@ -1,65 +1,122 @@
-class ContenedorMemoria {
-    constructor() {
-        this.elementos = []
-        this.id = 0
+const fs = require('fs')
+
+class ContenedorArchivo {
+
+    constructor(ruta) {
+        this.ruta = ruta;
     }
 
-    listar(id) {
+    async listar(id) {
         try {
-            const elementoId = this.elementos.find(x => x.id === id);
-            return elementoId;
+            const productos = await this.listarAll();
+            const productoId = productos.find(x => x.id == id);
+            return productoId;
         } catch (error) {
-            console.error("error:", error);
+            console.error(error);
         }
     }
 
-    listarAll() {
+    async listarAll() {
         try {
-            const data = this.elementos;
-            return data;
+            const productos = await fs.promises.readFile(this.ruta, 'utf-8');
+            const productosArray = JSON.parse(productos);
+            return productosArray
         } catch (error) {
-            console.error("error:", error);
+            console.error(error);
         }
     }
 
-    guardar(elem) {
-        try {
-            this.id++
-            const el = {...elem, id: this.id}
-            this.elementos.push(el);
-        } catch (error) {
-            console.error("error:", error);
-        }
-    }
+    async guardar(obj) {
+        let id = 0;
+        let objeto;
+        let array = [];
 
-    actualizar(elem, id) {
         try {
-            const elementoId = this.elementos.find(x => x.id === id);
-            const el = elem;
-            const newEl = Object.assign(elementoId, el);
             
-            return newEl;
+            const productos = await this.listarAll();
+            
+            if(productos) {
+
+                id = 1 + parseInt(productos.length);
+                const newObjeto = {...obj, id: id};
+                array.push(...productos, newObjeto);  
+                objeto = JSON.stringify(array, null, 2);
+
+                await fs.promises.writeFile(this.ruta, objeto, (error)=>{
+                    if(error) {
+                        throw new Error('error de escritura')
+                    }
+                    console.log('escritura exitosa')
+                    })
+                return (objeto.id)
+                
+            } else { 
+                id = 1;
+                const newObjeto = {...obj, id: id};
+                array.push(newObjeto); 
+                objeto = JSON.stringify(array, null, 2);
+
+                await fs.promises.writeFile(this.ruta, objeto, (error)=>{
+                    if(error) {
+                        throw new Error('error de escritura')
+                    }
+                    console.log('escritura exitosa')
+                    })
+                return (objeto.id)
+            }
+
         } catch (error) {
-            console.error("error:", error);
+            console.error(error);
         }
     }
 
-    borrar(id) {
+    async actualizar(elem, id) {
         try {
-            const elemIndex = this.elementos.findIndex(x => x.id === id);
-            this.elementos.splice(elemIndex, 1);
+            const obj = await this.listar(id);
+            const newObj = Object.assign(obj, elem);
+            await this.borrar(id);
+            await fs.promises.writeFile(this.ruta, newObj, (error)=> {
+                if(error) {
+                    throw new Error('escritura fallida');
+                }
+                console.log("actualizacion completada")
+            })
+            
         } catch (error) {
-            console.error("error:", error);
+            console.error(error);
         }
     }
 
-    borrarAll() {
+    async borrar(id) {
         try {
-            this.elementos = [];
+            const productos = await this.listarAll();
+            const deleteId = productos.filter(x => x.id !== id);
+            const productosFiltrados = JSON.stringify(deleteId, null, 2);
+            await fs.promises.writeFile(this.ruta, productosFiltrados, (error)=>{
+                if(error) {
+                    throw new Error('error de borrado')
+                }
+                console.log('borrado exitoso')
+            })
+
         } catch (error) {
-            console.error("error:", error);
+            console.error(error)
+        }
+    }
+
+    async borrarAll() {
+        try {
+            await fs.promises.unlink(this.ruta);
+            await fs.promises.writeFile(this.ruta, "", (error)=>{
+                if(error) {
+                    throw new Error('error de borrado')
+                }
+                console.log('borrado exitoso')
+            })
+        } catch (error) {
+            console.error(error)
         }
     }
 }
 
-module.exports = ContenedorMemoria
+module.exports = ContenedorArchivo
