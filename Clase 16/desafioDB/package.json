@@ -1,0 +1,22 @@
+{
+  "type": "module",
+  "name": "clear",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon src/main.js",
+    "dev": "node ./scripts/crearTablas.js && node ./src/main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "keywords": [],
+  "description": "",
+  "dependencies": {
+    "express-handlebars": "^6.0.6",
+    "knex": "^2.3.0",
+    "mysql": "^2.18.1",
+    "nodemon": "^2.0.19",
+    "socket.io": "^4.5.2",
+    "sqlite3": "^5.0.11"
+  }
+}
