@@ -1,0 +1,9 @@
+extends layout 
+
+block medidor
+    //el guón permite definir variables
+    - const estilos = "width:25%;height:20px;background-color:red;"
+    h1(style="color:blue;")!=titulo
+    span=min+" "
+    meter(value=nivel min=min max=max style=estilos)
+    span=" "+max
