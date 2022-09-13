@@ -1,65 +1,48 @@
 class ContenedorMemoria {
     constructor() {
-        this.elementos = []
-        this.id = 0
+      this.elementos = [];
     }
-
+  
     listar(id) {
-        try {
-            const elementoId = this.elementos.find(x => x.id === id);
-            return elementoId;
-        } catch (error) {
-            console.error("error:", error);
-        }
+      
+      let producF = this.productos.find((p) => p.id == id);
+      return producF;
     }
-
+  
     listarAll() {
-        try {
-            const data = this.elementos;
-            return data;
-        } catch (error) {
-            console.error("error:", error);
-        }
+      console.log("1");
+      return this.productos;
     }
-
+  
     guardar(elem) {
-        try {
-            this.id++
-            const el = {...elem, id: this.id}
-            this.elementos.push(el);
-        } catch (error) {
-            console.error("error:", error);
-        }
+      if (this.productos.length > 0) {
+        
+        let newLastItem = this.productos[this.productos.length - 1].id + 1;
+        elem.id = newLastItem;
+        this.productos.push(elem);
+      } else {
+        elem.id = 1;
+        this.productos.push(elem);
+      }
     }
-
+  
     actualizar(elem, id) {
-        try {
-            const elementoId = this.elementos.find(x => x.id === id);
-            const el = elem;
-            const newEl = Object.assign(elementoId, el);
-            
-            return newEl;
-        } catch (error) {
-            console.error("error:", error);
-        }
+      let pUpdate = this.productos.findIndex((p) => p.id === id);
+  
+      this.productos[pUpdate].title = elem.title;
+      this.productos[pUpdate].price = elem.price;
+      this.productos[pUpdate].thumbnail = elem.thumbnail;
     }
-
+  
     borrar(id) {
-        try {
-            const elemIndex = this.elementos.findIndex(x => x.id === id);
-            this.elementos.splice(elemIndex, 1);
-        } catch (error) {
-            console.error("error:", error);
-        }
+      let pDelete = this.productos.findIndex((p) => p.id === id);
+      
+      this.productos.splice(pDelete, 1);
     }
-
+  
     borrarAll() {
-        try {
-            this.elementos = [];
-        } catch (error) {
-            console.error("error:", error);
-        }
+      this.productos = [];
     }
-}
-
-export default ContenedorMemoria
+  }
+  
+  export default ContenedorMemoria

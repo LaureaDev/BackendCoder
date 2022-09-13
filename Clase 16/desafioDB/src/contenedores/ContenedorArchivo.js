@@ -1,122 +1,78 @@
-import fs from 'fs';
+import { promises as fs } from 'fs'
 
 class ContenedorArchivo {
+  constructor(ruta) {
+    this.ruta = ruta;
+  }
 
-    constructor(ruta) {
-        this.ruta = ruta;
+  async listar(id) {
+    const products = await this.listarAll(); 
+    const productById = products.find((p) => p.id == id); 
+    console.log(
+      `Se retorna el producto buscado por id es ${JSON.stringify(productById)}`
+    );
+    return productById;
+  }
+
+  async listarAll() {
+    try {
+      let products = await fs.readFile(this.ruta, "utf-8"); 
+      return JSON.parse(products); 
+    } catch (error) {
+      console.log(
+        "Error Lectura ó Listado Vacio, al traer TODOS los productos"
+      );
+      return [];
     }
+  }
 
-    async listar(id) {
-        try {
-            const productos = await this.listarAll();
-            const productoId = productos.find(x => x.id == id);
-            return productoId;
-        } catch (error) {
-            console.error(error);
-        }
+  async guardar(obj) {
+    const products = await this.listarAll();
+    
+    products.length === 0
+      ? (obj.id = 1)
+      : (obj.id = products[products.length - 1].id + 1);
+
+    products.push(obj); 
+    try {
+      console.log(
+        `El Siguiente elemento va a ser guardado: \n ${JSON.stringify(obj)}`
+      );
+      await fs.writeFile(this.ruta, JSON.stringify(products, null, 2)); 
+      console.log("Guardado Exitoso");
+    } catch (error) {
+      console.log("Error de Escritura al Guardar");
+      console.log(error);
     }
+  }
 
-    async listarAll() {
-        try {
-            const productos = await fs.promises.readFile(this.ruta, 'utf-8');
-            const productosArray = JSON.parse(productos);
-            return productosArray
-        } catch (error) {
-            console.error(error);
-        }
+  async actualizar(elem, id) {}
+
+  async borrar(id) {
+    const products = await this.listarAll(); 
+    const product = products.find((p) => p.id == id); 
+    const newProducts = products.filter((element) => element != product); 
+    try {
+      console.log(
+        `El siguiente Elemento fue ELIMINADO: \n ${JSON.stringify(product)}`
+      );
+      await fs.writeFile(this.ruta, JSON.stringify(newProducts, null, 2)); 
+      console.log("Elimando Correcto");
+    } catch (error) {
+      console.log(
+        `Error de Escritura al Eliminar el producto ${JSON.stringify(product)}`
+      );
     }
+  }
 
-    async guardar(obj) {
-        let id = 0;
-        let objeto;
-        let array = [];
-
-        try {
-            
-            const productos = await this.listarAll();
-            
-            if(productos) {
-
-                id = 1 + parseInt(productos.length);
-                const newObjeto = {...obj, id: id};
-                array.push(...productos, newObjeto);  
-                objeto = JSON.stringify(array, null, 2);
-
-                await fs.promises.writeFile(this.ruta, objeto, (error)=>{
-                    if(error) {
-                        throw new Error('error de escritura')
-                    }
-                    console.log('escritura exitosa')
-                    })
-                return (objeto.id)
-                
-            } else { 
-                id = 1;
-                const newObjeto = {...obj, id: id};
-                array.push(newObjeto); 
-                objeto = JSON.stringify(array, null, 2);
-
-                await fs.promises.writeFile(this.ruta, objeto, (error)=>{
-                    if(error) {
-                        throw new Error('error de escritura')
-                    }
-                    console.log('escritura exitosa')
-                    })
-                return (objeto.id)
-            }
-
-        } catch (error) {
-            console.error(error);
-        }
+  async borrarAll() {
+    try {
+      console.log("Se va a ELIMINAR TODOS LOS ELEMENTOS");
+      await fs.writeFile(this.ruta, "[]"); 
+    } catch (error) {
+      console.log("Error de Escritura al ELIMINAR TODOS los productos");
     }
-
-    async actualizar(elem, id) {
-        try {
-            const obj = await this.listar(id);
-            const newObj = Object.assign(obj, elem);
-            await this.borrar(id);
-            await fs.promises.writeFile(this.ruta, newObj, (error)=> {
-                if(error) {
-                    throw new Error('escritura fallida');
-                }
-                console.log("actualizacion completada")
-            })
-            
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    async borrar(id) {
-        try {
-            const productos = await this.listarAll();
-            const deleteId = productos.filter(x => x.id !== id);
-            const productosFiltrados = JSON.stringify(deleteId, null, 2);
-            await fs.promises.writeFile(this.ruta, productosFiltrados, (error)=>{
-                if(error) {
-                    throw new Error('error de borrado')
-                }
-                console.log('borrado exitoso')
-            })
-
-        } catch (error) {
-            console.error(error)
-        }
-    }
-
-    async borrarAll() {
-        try {
-            await fs.promises.unlink(this.ruta);
-            await fs.promises.writeFile(this.ruta, "", (error)=>{
-                if(error) {
-                    throw new Error('error de borrado')
-                }
-                console.log('borrado exitoso')
-            })
-        } catch (error) {
-            console.error(error)
-        }
-    }
+  }
 }
 
-export default ContenedorArchivo;
+export default ContenedorArchivo
